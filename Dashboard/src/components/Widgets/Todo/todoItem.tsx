@@ -1,10 +1,16 @@
 import { useState, type ChangeEvent } from "react";
-import useTodoStore from "../../../store/todoStore.js";
 import { motion } from "framer-motion";
-import type { Todo } from "../../../store/todoStore.js";
+import useTodoStore from "../../../stores/todoStore";
+import type { Todo } from "../../../stores/todoStore";
 
 type TodoItemProps = {
   todo: Todo;
+};
+
+const variants = {
+  initial: { opacity: 0, y: 50 },
+  animation: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -16 },
 };
 
 export default function TodoItem({ todo }: TodoItemProps) {
@@ -16,17 +22,12 @@ export default function TodoItem({ todo }: TodoItemProps) {
     if (isEditing && newText.trim() !== "") {
       editTodo(todo.id, newText);
     }
+
     setIsEditing(!isEditing);
   };
 
-  const variants = {
-    initial: { opacity: 0, y: 50 },
-    animation: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -16 },
-  };
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setNewText(e.target.value);
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setNewText(event.target.value);
   };
 
   return (
@@ -35,39 +36,31 @@ export default function TodoItem({ todo }: TodoItemProps) {
       initial="initial"
       animate="animation"
       exit="exit"
-      className={`todo-item ${todo.completed ? "is-completed" : ""}`}
       layout
     >
       <input
         type="checkbox"
         checked={todo.completed}
         onChange={() => toggleTodo(todo.id)}
-        className="todo-checkbox"
       />
 
-      <div className="todo-content">
+      <div>
         {isEditing ? (
           <input
             type="text"
             value={newText}
             onChange={handleChange}
-            className="todo-edit-input"
           />
+        ) : todo.completed ? (
+          <s>{todo.text}</s>
         ) : (
-          <span className="todo-text">{todo.text}</span>
+          <span>{todo.text}</span>
         )}
       </div>
 
-      <div className="todo-actions">
-        <button onClick={handleEdit} className="todo-button todo-button-secondary">
-          {isEditing ? "Save" : "Edit"}
-        </button>
-        <button
-          onClick={() => removeTodo(todo.id)}
-          className="todo-button todo-button-danger"
-        >
-          Delete
-        </button>
+      <div>
+        <button onClick={handleEdit}>{isEditing ? "Save" : "Edit"}</button>
+        <button onClick={() => removeTodo(todo.id)}>Delete</button>
       </div>
     </motion.li>
   );

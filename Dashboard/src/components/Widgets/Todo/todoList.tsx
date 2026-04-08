@@ -1,13 +1,13 @@
-import TodoItem from "./todoItem.js";
-import useTodoStore from "../../../store/todoStore.js";
 import { AnimatePresence } from "framer-motion";
+import useTodoStore from "../../../stores/todoStore";
+import TodoItem from "./TodoItem";
 
 const TodoList = () => {
   const { todos } = useTodoStore();
 
   if (todos.length === 0) {
     return (
-      <div className="todo-empty">
+      <div>
         <p>No tasks yet.</p>
         <span>Add your first item to start the day with a clear plan.</span>
       </div>
@@ -16,7 +16,7 @@ const TodoList = () => {
 
   return (
     <AnimatePresence>
-      <ul className="todo-list">
+      <ul>
         {todos.map((todo) => (
           <TodoItem key={todo.id} todo={todo} />
         ))}

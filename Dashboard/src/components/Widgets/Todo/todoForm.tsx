@@ -1,12 +1,14 @@
-import useTodoStore from "../../../store/todoStore.js";
 import { useState } from "react";
+import type { FormEvent } from "react";
+import useTodoStore from "../../../stores/todoStore";
 
 const AddToDoForm = () => {
   const [text, setText] = useState("");
   const addTodo = useTodoStore((state) => state.addTodo);
 
-  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
     if (!text.trim()) {
       return;
     }
@@ -16,17 +18,14 @@ const AddToDoForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="todo-form">
+    <form onSubmit={handleSubmit}>
       <input
-        className="todo-input"
         type="text"
         value={text}
-        onChange={(e) => setText(e.target.value)}
+        onChange={(event) => setText(event.target.value)}
         placeholder="Write your next task..."
       />
-      <button type="submit" className="todo-button todo-button-primary">
-        Add
-      </button>
+      <button type="submit">Add</button>
     </form>
   );
 };
