@@ -26,7 +26,7 @@ const navItems = [
 
 export default function SideBar() {
   return (
-    <aside className="border-b border-slate-800 bg-slate-950 px-3 py-3 lg:min-h-screen lg:border-b-0 lg:border-r lg:px-4 lg:py-4">
+    <aside className=" h-screen sticky top-0 border-b border-slate-800 bg-slate-950 px-3 py-3 lg:min-h-screen lg:border-b-0 lg:border-r lg:px-4 lg:py-4">
       <div className="flex h-full flex-col">
         <div className="flex items-center gap-3 rounded-3xl border border-slate-800 bg-slate-950 px-3 py-3.5">
           <div className="grid h-12 w-12 place-items-center rounded-2xl border border-slate-800 bg-slate-900">

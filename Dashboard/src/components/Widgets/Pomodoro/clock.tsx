@@ -1,78 +1,118 @@
 import { useEffect } from "react";
 import useClockStore from "../../../stores/clockStore";
+import { CircularProgressbar } from "react-circular-progressbar";
+import "react-circular-progressbar/dist/styles.css";
 
 const Clock = () => {
   const {
-    time,
-    isRunning,
-    workTime,
-    breakTime,
-    countTimer,
-    toggleTime,
-    setWorkTime,
-    setTime,
-    setBreakTime,
-    setIsRunning,
+    timeLeft,
+    status,
+    mode,
+    settings,
+    sessions,
+    tick,
+    start,
+    pause,
+    resume,
+    reset,
+    updateSettings,
   } = useClockStore();
 
-  const minutes = String(Math.floor(time / 60)).padStart(2, "0");
-  const seconds = String(time % 60).padStart(2, "0");
+  const minutes = String(Math.floor(timeLeft / 60)).padStart(2, "0");
+  const seconds = String(timeLeft % 60).padStart(2, "0");
+  const percentage = (timeLeft / (settings[mode] * 60)) * 100;
 
   useEffect(() => {
-    if (!isRunning) return;
-    const id = setInterval(countTimer, 1000);
+    if (status !== "running") return;
+    const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, [isRunning, countTimer]);
+  }, [status, tick]);
+
+  const renderButtons = () => {
+    if (status === "running") {
+      return (
+        <button
+          className="bg-gray-600 hover:bg-gray-700 text-white rounded-md px-4 py-2 w-24"
+          onClick={pause}
+        >
+          Pause
+        </button>
+      );
+    } else if (status === "paused") {
+      return (
+        <>
+          <div className="flex flex-row gap-2">
+            <button
+              className="bg-gray-600 hover:bg-gray-700 text-white rounded-md px-4 py-2 w-24"
+              onClick={resume}
+            >
+              Resume
+            </button>
+            <button
+              className="bg-gray-600 hover:bg-gray-700 text-white rounded-md px-4 py-2 w-24"
+              onClick={reset}
+            >
+              Reset
+            </button>
+          </div>
+        </>
+      );
+    } else {
+      // return <button onClick={start}>Reset</button>;
+    }
+  };
+  if (status === "idle")
+    return (
+      <section className="flex flex-col items-center justify-center gap-4">
+        <p className="text-xs font-semibold uppercase self-start tracking-widest mb-3 text-[var(--text-muted)]">
+          pomodoro
+        </p>
+        <p className="text-3xl font-bold">
+          {minutes}:{seconds}
+        </p>
+        <div className="flex-row items-center gap-2">
+          <button
+            className="w-8 h-8"
+            onClick={() => updateSettings("work", settings.work + 5)}
+          >
+            +
+          </button>
+          <button
+            className="w-8 h-8"
+            onClick={() =>
+              updateSettings("work", Math.max(10, settings.work - 5))
+            }
+          >
+            -
+          </button>
+        </div>
+        <div>
+          <button
+            className="bg-gray-600 hover:bg-gray-700 text-white rounded-md px-4 py-2 w-24"
+            onClick={start}
+          >
+            Start
+          </button>
+          {/* <button onClick={reset}>Reset</button> */}
+        </div>
+      </section>
+    );
 
   return (
-    <section>
-      <p>Pomodoro</p>
-      <div>
-        <span>{minutes}</span>
-        <span>:</span>
-        <span>{seconds}</span>
-      </div>
-
-      <div>
-        <button
-          onClick={() => setWorkTime(workTime - 5 * 60)}
-          disabled={workTime <= 10 * 60}
-        >
-          -5
-        </button>
-        <span>{workTime / 60} min</span>
-        <button onClick={() => setWorkTime(workTime + 5 * 60)}>
-          +5
-        </button>
-      </div>
-
-      <div>
-        <button
-          onClick={() => setBreakTime(breakTime - 5 * 60)}
-          disabled={breakTime <= 5 * 60}
-        >
-          -5
-        </button>
-        <span>{breakTime / 60} min</span>
-        <button onClick={() => setBreakTime(breakTime + 5 * 60)}>
-          +5
-        </button>
-      </div>
-
-      <div>
-        <button
-          onClick={() => {
-            setTime(workTime);
-            setIsRunning(false);
-          }}
-        >
-          Reset
-        </button>
-        <button onClick={toggleTime}>
-          {isRunning ? "Pause" : "Start"}
-        </button>
-      </div>
-    </section>
+    <>
+      <section className="flex flex-col items-center gap-4">
+        <p className="text-xs font-semibold uppercase self-start tracking-widest mb-3 text-[var(--text-muted)]">
+          pomodoro
+        </p>
+        <div className="w-48">
+          <CircularProgressbar
+            value={percentage}
+            text={`${minutes}:${seconds}`}
+          />
+        </div>
+        <div>{renderButtons()}</div>
+      </section>
+    </>
   );
 };
 

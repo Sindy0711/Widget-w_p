@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react";
 import type { IconType } from "react-icons";
+import { useEffect, useState } from "react";
 import {
+  WiHumidity,
+  WiStrongWind,
   WiCloud,
   WiCloudy,
   WiDaySunny,
   WiFog,
-  WiHumidity,
   WiRain,
   WiSnow,
-  WiStrongWind,
   WiThunderstorm,
 } from "react-icons/wi";
 import type { WeatherData } from "../../../types/weather";
@@ -99,24 +99,28 @@ const WeatherWidget = () => {
     );
   }
 
-  const condition = weather.weather[0]?.main ?? "Clear";
-  const description = weather.weather[0]?.description ?? condition;
-  const WeatherIcon = weatherIconMap[condition.toLowerCase()] ?? WiDaySunny;
-  const degree = String.fromCharCode(176);
+  const condition = weather.weather[0].main ?? "";
+  const description = weather.weather[0].description ?? "";
   const todayLabel = new Intl.DateTimeFormat("en-US", {
     weekday: "long",
     day: "numeric",
     month: "short",
   }).format(new Date());
-
+  const WeatherIcon = weatherIconMap[condition.toLowerCase()] || WiDaySunny;
   return (
     <section>
-      <header>
-        <div>
-          <p>Local forecast</p>
-          <h3>{weather.name}</h3>
+      <header className="grid grid-flow-col ">
+        <div className="col-span-6">
+          <p className="text-xs font-semibold uppercase tracking-widest mb-3 text-[var(--text-muted)]">
+            Local forecast
+          </p>
+          <h3 className="text-3xl font-semibold tracking-tight text-[var(--text-heading)]">
+            {weather.name}
+          </h3>
         </div>
-        <p>{todayLabel}</p>
+        <p className="col-span-6 text-end text-xs font-semibold uppercase tracking-widest mb-3 text-[var(--text-muted)]">
+          {todayLabel}
+        </p>
       </header>
 
       <div>
@@ -126,38 +130,38 @@ const WeatherWidget = () => {
         <div>
           <p>
             {Math.round(weather.main.temp)}
-            {degree}C
+            °C
           </p>
           <p>
-            <span>{condition}</span>{" "}
-            <span>{description}</span>
+            <span>{condition}</span> <span>{description}</span>
           </p>
         </div>
       </div>
 
-      <dl>
-        <div>
+      <div className="grid grid-flow-col">
+        <div className="col-span-3">
+          <WeatherIcon aria-hidden="true" />
           <dt>Feels like</dt>
           <dd>
             {Math.round(weather.main.feels_like)}
-            {degree}C
+            °C
           </dd>
         </div>
-        <div>
+        <div className="col-span-3  ">
           <dt>
-            <WiHumidity aria-hidden="true" />
+            <WeatherIcon aria-hidden="true" />
             Humidity
           </dt>
           <dd>{weather.main.humidity}%</dd>
         </div>
-        <div>
+        <div className="col-span-3 ">
           <dt>
-            <WiStrongWind aria-hidden="true" />
+            <WeatherIcon aria-hidden="true" />
             Wind
           </dt>
           <dd>{Math.round(weather.wind.speed)} m/s</dd>
         </div>
-      </dl>
+      </div>
     </section>
   );
 };
