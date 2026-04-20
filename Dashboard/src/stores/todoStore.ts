@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 export interface Todo {
   id: number;
@@ -14,28 +15,35 @@ type toDoStore = {
   editTodo: (id: number, text: string) => void;
 };
 
-const useTodoStore = create<toDoStore>((set) => ({
-  todos: [],
-  addTodo: (text) =>
-    set((state) => ({
-      todos: [...state.todos, { id: Date.now(), text, completed: false }],
-    })),
-  removeTodo: (id) =>
-    set((state) => ({
-      todos: state.todos.filter((t) => t.id !== id),
-    })),
-  toggleTodo: (id) =>
-    set((state) => ({
-      todos: state.todos.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo,
-      ),
-    })),
-  editTodo: (id, text) =>
-    set((state) => ({
-      todos: state.todos.map((todo) =>
-        todo.id === id ? { ...todo, text: text } : todo,
-      ),
-    })),
-}));
+const useTodoStore = create<toDoStore>()(
+  persist(
+    (set) => ({
+      todos: [],
+      addTodo: (text) =>
+        set((state) => ({
+          todos: [...state.todos, { id: Date.now(), text, completed: false }],
+        })),
+      removeTodo: (id) =>
+        set((state) => ({
+          todos: state.todos.filter((t) => t.id !== id),
+        })),
+      toggleTodo: (id) =>
+        set((state) => ({
+          todos: state.todos.map((todo) =>
+            todo.id === id ? { ...todo, completed: !todo.completed } : todo,
+          ),
+        })),
+      editTodo: (id, text) =>
+        set((state) => ({
+          todos: state.todos.map((todo) =>
+            todo.id === id ? { ...todo, text: text } : todo,
+          ),
+        })),
+    }),
+    {
+      name: "todo-store",
+    },
+  ),
+);
 
 export default useTodoStore;

@@ -2,12 +2,15 @@ import { useState, useEffect } from "react";
 import { WiDaySunny } from "react-icons/wi";
 import AddToDoForm from "../Widgets/Todo/TodoForm";
 import TodoList from "../Widgets/Todo/TodoList";
-import Clock from "../Widgets/Pomodoro/Clock";
+import Clock from "../Widgets/Pomodoro/clock";
 import WeatherWidget from "../Widgets/Weather/weather";
+import  StartupModal  from "../StartupModal/StartupModal";
+import useProfileStore from "../../stores/profileStore";
 
 export default function MainContent() {
   const [clock, setClock] = useState(new Date().toLocaleTimeString());
   const [greeting, setGreeting] = useState<string>("");
+  const {name } = useProfileStore();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -29,7 +32,6 @@ export default function MainContent() {
   }, []);
 
   return (
-    <main className="min-h-screen p-6 sm:p-10 text-[var(--text)] bg-[var(--bg)] font-sans">
       <div className="max-w-[1500px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 2xl:gap-8 auto-rows-min">
         <section className="lg:col-span-12 grid grid-cols-12 gap-6 2xl:gap-8">
           <article className="col-span-4 p-8 rounded-3xl bg-[var(--surface)] border border-[var(--border)] transition-transform hover:-translate-y-1 duration-300 flex flex-col justify-between">
@@ -38,7 +40,7 @@ export default function MainContent() {
                 Greeting
               </p>
               <h1 className="text-3xl font-semibold tracking-tight text-[var(--text-heading)]">
-                {greeting} Hiro
+                {greeting} {name}
               </h1>
             </div>
           </article>
@@ -96,7 +98,12 @@ export default function MainContent() {
             <Clock />
           </article>
         </section>
+
+        <div className="clipping-container">
+          <StartupModal />
+        </div>
       </div>
-    </main>
+    
+      
   );
 }

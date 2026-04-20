@@ -9,7 +9,7 @@ const Clock = () => {
     status,
     mode,
     settings,
-    sessions,
+    // sessions,
     tick,
     start,
     pause,

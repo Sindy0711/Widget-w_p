@@ -1,7 +1,7 @@
 import type { IconType } from "react-icons";
 import { useEffect, useState } from "react";
 import {
-  WiHumidity,
+  // WiHumidity,
   WiStrongWind,
   WiCloud,
   WiCloudy,
@@ -13,6 +13,7 @@ import {
 } from "react-icons/wi";
 import type { WeatherData } from "../../../types/weather";
 import { openWeather } from "../../../services/weatherService";
+import useProfileStore from "../../../stores/profileStore";
 
 const weatherIconMap: Record<string, IconType> = {
   clear: WiDaySunny,
@@ -36,15 +37,22 @@ const WeatherWidget = () => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const city = useProfileStore((state) => state.city) ;
+
 
   useEffect(() => {
     let isMounted = true;
 
     const fetchWeather = async () => {
+      if (isMounted) {
+        setIsLoading(true);
+        setHasError(false);
+      }
+
       try {
         const geo = await openWeather.get("/geo/1.0/direct", {
           params: {
-            q: "Ho Chi Minh City",
+            q: city, 
             limit: 1,
           },
         });
@@ -79,7 +87,7 @@ const WeatherWidget = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [city]);
 
   if (isLoading) {
     return (

@@ -2,25 +2,23 @@ import logoUrl from "../../assets/react.svg";
 import { FaHome } from "react-icons/fa";
 import { IoIosSettings } from "react-icons/io";
 import { FaKey } from "react-icons/fa6";
+import { NavLink } from "react-router-dom";
 
 const navItems = [
   {
     label: "Home",
-    href: "#",
+    href: "/",
     icon: FaHome,
-    isActive: true,
   },
   {
     label: "Setting",
-    href: "#",
+    href: "/settings",
     icon: IoIosSettings,
-    isActive: false,
   },
   {
     label: "Api Keys",
-    href: "#",
+    href: "/api-keys",
     icon: FaKey,
-    isActive: false,
   },
 ];
 
@@ -54,37 +52,43 @@ export default function SideBar() {
 
                 return (
                   <li key={item.label}>
-                    <a
-                      href={item.href}
-                      className={`group flex items-center gap-3 rounded-2xl border px-3 py-3 transition-colors duration-200 ${
-                        item.isActive
-                          ? "border-slate-800 bg-slate-900 text-white"
-                          : "border-transparent bg-transparent text-slate-400 hover:border-slate-800 hover:bg-slate-900/70 hover:text-slate-200"
-                      }`}
+                    <NavLink
+                      to={item.href}
+                      className={({ isActive }) =>
+                        `group flex items-center gap-3 rounded-2xl border px-3 py-3 transition-colors duration-200 ${
+                          isActive
+                            ? "border-slate-800 bg-slate-900 text-white"
+                            : "border-transparent bg-transparent text-slate-400 hover:border-slate-800 hover:bg-slate-900/70 hover:text-slate-200"
+                        }`
+                      }
                     >
-                      <div
-                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border text-base transition-colors ${
-                          item.isActive
-                            ? "border-slate-700 bg-slate-950 text-white"
-                            : "border-slate-800 bg-slate-950 text-slate-400 group-hover:text-slate-200"
-                        }`}
-                      >
-                        <Icon />
-                      </div>
+                      {({ isActive }) => (
+                        <>
+                          <div
+                            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border text-base transition-colors ${
+                              isActive
+                                ? "border-slate-700 bg-slate-950 text-white"
+                                : "border-slate-800 bg-slate-950 text-slate-400 group-hover:text-slate-200"
+                            }`}
+                          >
+                            <Icon />
+                          </div>
 
-                      <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
-                        <span className="truncate text-sm font-medium tracking-[0.01em]">
-                          {item.label}
-                        </span>
-                        {item.isActive ? (
-                          <span className="rounded-full border border-slate-700 px-2 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-slate-300">
-                            Live
-                          </span>
-                        ) : (
-                          <span className="h-1.5 w-1.5 rounded-full bg-slate-700 group-hover:bg-slate-500" />
-                        )}
-                      </div>
-                    </a>
+                          <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
+                            <span className="truncate text-sm font-medium tracking-[0.01em]">
+                              {item.label}
+                            </span>
+                            {isActive ? (
+                              <span className="rounded-full border border-slate-700 px-2 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-slate-300">
+                                Live
+                              </span>
+                            ) : (
+                              <span className="h-1.5 w-1.5 rounded-full bg-slate-700 group-hover:bg-slate-500" />
+                            )}
+                          </div>
+                        </>
+                      )}
+                    </NavLink>
                   </li>
                 );
               })}
