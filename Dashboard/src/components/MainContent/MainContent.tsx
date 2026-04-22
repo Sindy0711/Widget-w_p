@@ -72,7 +72,7 @@ export default function MainContent() {
 
         <section className="lg:col-span-12 xl:col-span-6 flex flex-col gap-6 2xl:gap-8">
           <article className="p-8 rounded-3xl flex-1 bg-[var(--surface)] border border-[var(--border)] flex flex-col transition-all hover:shadow-[var(--shadow-soft)] duration-500">
-            <div className="">
+            <div>
               <p className="text-xs font-semibold uppercase tracking-widest mb-3 text-[var(--text-muted)]">
                 Daily focus
               </p>

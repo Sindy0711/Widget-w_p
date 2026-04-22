@@ -13,24 +13,29 @@ export const DEFAULT_SETTINGS: Settings = {
   longBreak: 15,
 };
 
-export type clockStore = {
+export const validateSettings = (s: Settings): Settings => ({
+  work: Math.min(Math.max(s.work, 10), 60),
+  break: Math.min(Math.max(s.break, 5), 30),
+  longBreak: Math.min(Math.max(s.longBreak, 15), 60),
+});
+
+export type ClockStore = {
   mode: "work" | "break" | "longBreak";
   status: "idle" | "running" | "paused" | "finished";
   timeLeft: number;
   sessions: number;
   settings: Settings;
-  // action
+  // actions
   start: () => void;
   pause: () => void;
   resume: () => void;
   reset: () => void;
   tick: () => void;
-  updateSettings: (key: keyof Settings, value: number) => void;
-  saveSetting: (newSettings: Settings) => void;
+  saveSettings: (newSettings: Settings) => void;
   resetDefault: () => void;
 };
 
-const useClockStore = create<clockStore>()(
+const useClockStore = create<ClockStore>()(
   persist(
     (set, get) => ({
       mode: "work",
@@ -38,62 +43,71 @@ const useClockStore = create<clockStore>()(
       settings: DEFAULT_SETTINGS,
       timeLeft: DEFAULT_SETTINGS.work * 60,
       sessions: 0,
+
       start: () => set({ status: "running" }),
       pause: () => set({ status: "paused" }),
       resume: () => set({ status: "running" }),
-      reset: () =>
+
+      reset: () => {
+        const { settings } = get();
         set({
           status: "idle",
           mode: "work",
-          timeLeft: get().settings.work * 60,
+          timeLeft: settings.work * 60,
           sessions: 0,
-        }),
+        });
+      },
+
       tick: () => {
         const { timeLeft, sessions, settings, mode } = get();
+
         if (timeLeft > 1) {
           set({ timeLeft: timeLeft - 1 });
           return;
         }
 
-        const newSession = mode === "work" ? sessions + 1 : sessions;
-        const nextMode =
+        const newSessions = mode === "work" ? sessions + 1 : sessions;
+        const nextMode: ClockStore["mode"] =
           mode === "work"
-            ? newSession % 4 === 0
+            ? newSessions % 4 === 0
               ? "longBreak"
               : "break"
             : "work";
-        const nextTime = settings[nextMode] * 60;
-        const newStatus = mode === "work" ? "running" : "idle";
 
         if (mode === "work") console.log("bell");
+
         set({
-          timeLeft: nextTime,
+          timeLeft: settings[nextMode] * 60,
           mode: nextMode,
-          sessions: newSession,
-          status: newStatus,
+          sessions: newSessions,
+          status: mode === "work" ? "running" : "idle",
         });
-      },
-      updateSettings: (key, value) => {
-        const { settings } = get();
-        const newSettings = { ...settings, [key]: value };
-        set({ settings: newSettings });
-        set({ timeLeft: newSettings[key] * 60 });
       },
 
-      saveSetting : (newSetting: Settings) =>{
-        set({settings : newSetting})
+      saveSettings: (newSettings: Settings) => {
+        const { mode } = get();
+        const validated = validateSettings(newSettings);
+        set({
+          settings: validated,
+          timeLeft: validated[mode] * 60,
+        });
       },
-      resetDefault : () => {
-        const {mode} = get();
+
+      resetDefault: () => {
+        const { mode } = get();
         set({
           settings: DEFAULT_SETTINGS,
-          timeLeft: DEFAULT_SETTINGS[mode] * 60
-        
+          timeLeft: DEFAULT_SETTINGS[mode] * 60,
         });
-      }
+      },
     }),
     {
       name: "pomodoro-storage",
+      partialize: (state) => ({
+        settings: state.settings,
+        sessions: state.sessions,
+        timeLeft: state.timeLeft,
+      }),
     },
   ),
 );

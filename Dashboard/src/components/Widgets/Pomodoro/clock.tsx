@@ -5,6 +5,7 @@ import "react-circular-progressbar/dist/styles.css";
 
 const Clock = () => {
   const {
+    
     timeLeft,
     status,
     mode,
@@ -15,7 +16,7 @@ const Clock = () => {
     pause,
     resume,
     reset,
-    updateSettings,
+    saveSettings
   } = useClockStore();
 
   const minutes = String(Math.floor(timeLeft / 60)).padStart(2, "0");
@@ -58,7 +59,6 @@ const Clock = () => {
         </>
       );
     } else {
-      // return <button onClick={start}>Reset</button>;
     }
   };
   if (status === "idle")
@@ -73,15 +73,15 @@ const Clock = () => {
         <div className="flex-row items-center gap-2">
           <button
             className="w-8 h-8"
-            onClick={() => updateSettings("work", settings.work + 5)}
+            onClick={()=> saveSettings({...settings , work: settings.work + 5})}
+            disabled={settings.work >=60}
           >
             +
           </button>
           <button
             className="w-8 h-8"
-            onClick={() =>
-              updateSettings("work", Math.max(10, settings.work - 5))
-            }
+            onClick={()=> saveSettings({...settings , work: settings.work - 5})}
+            disabled={settings.work <=10}
           >
             -
           </button>

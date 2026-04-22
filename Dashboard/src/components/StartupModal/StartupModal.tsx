@@ -31,7 +31,7 @@ export default function StartupModal() {
             </label>
             <input
               name="name"
-              value={name} // From Zustand
+              value={name} 
               onChange={handleChange}
               className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent"
               placeholder="Enter your name"
