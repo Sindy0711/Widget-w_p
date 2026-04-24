@@ -7,24 +7,17 @@ type ProfileStore = {
   hasCompletedSetup: boolean;
 
   // action
-  setProfileData: (data: any) => void;
-  saveProfile: () => void;
+  saveProfile: (name : string, city : string) => void;
 };
 
 const useProfileStore = create<ProfileStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       name: "",
       city: "",
       hasCompletedSetup: false,
-      setProfileData: (data) => set((state) => ({ ...state, ...data })),
-      saveProfile: () => {
-        const { name, city } = get();
-        if (name.trim() && city.trim()) {
-          set({ hasCompletedSetup: true });
-        } else {
-          console.warn("Cannot save: Name and City are required.");
-        }
+      saveProfile: (name, city) => {
+        set({ name, city, hasCompletedSetup: true });
       },
     }),
     {

@@ -1,12 +1,12 @@
-import { useState, type ChangeEvent } from "react";
-import useClockStore, { validateSettings } from "../../stores/clockStore";
+import { useState } from "react";
+import useClockStore from "../../stores/clockStore";
 import useProfileStore from "../../stores/profileStore";
 import { FiUser, FiMapPin } from "react-icons/fi";
 
 
 export default function Settings() {
   const  {settings , saveSettings} = useClockStore();
-  const {name , city, saveProfile , setProfileData} = useProfileStore();
+  const {name , city, saveProfile } = useProfileStore();
   const [isDirty, setIsDirty] = useState(false);
 
   const [form, setForm] = useState({
@@ -37,8 +37,7 @@ export default function Settings() {
       alert("Please fill all fields correctly.");
       return;
     }
-    setProfileData({ name: form.name, city: form.city });
-    saveProfile();
+    saveProfile(form.name, form.city);
     saveSettings({ work: form.work, break: form.breakMin, longBreak: form.longBreak });
     setIsDirty(false);
   };

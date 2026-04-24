@@ -1,19 +1,22 @@
-import type { ChangeEvent, FormEvent } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
 import useProfileStore from "../../stores/profileStore";
 import { createPortal } from "react-dom";
 
 export default function StartupModal() {
-  const { saveProfile, name, city, hasCompletedSetup, setProfileData } =
+  const { saveProfile,  hasCompletedSetup,  } =
     useProfileStore();
+  const [formData, setFormData] = useState({ name: "", city: "Ho Chi Minh City" });
+    
   if (hasCompletedSetup) return null;
+
   const handleChange = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setProfileData({ [name]: value });
+    if (name === "name" && /\d/.test(value)) return
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
-  
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    saveProfile();
+    saveProfile(formData.name, formData.city);
   };
 
 
@@ -31,7 +34,7 @@ export default function StartupModal() {
             </label>
             <input
               name="name"
-              value={name} 
+              value={formData.name}
               onChange={handleChange}
               className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent"
               placeholder="Enter your name"
@@ -42,7 +45,7 @@ export default function StartupModal() {
             <label className="block text-sm font-medium mb-1.5 text-gray-700 dark:text-gray-300">
               City
             </label>
-            <select name="city" value={city} onChange={handleChange} className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent" required>
+            <select name="city" value={formData.city} onChange={handleChange} className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent" required>
               <option value="Ho Chi Minh City">Ho Chi Minh City</option>
               <option value="Hanoi">Hanoi</option>
               <option value="Da Lat">Da Lat</option>

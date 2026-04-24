@@ -1,0 +1,12 @@
+# docker-compose.yml
+services:
+  widget:
+    build:
+      context: .
+      args:
+        - VITE_WEATHER_API_KEY=df5cb25469d2a4d13087760617aadfce
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/app
+      - /app/node_modules
