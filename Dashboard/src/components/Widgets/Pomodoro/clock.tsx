@@ -58,8 +58,9 @@ const Clock = () => {
           </div>
         </>
       );
-    } else {
     }
+
+    return null;
   };
   if (status === "idle")
     return (

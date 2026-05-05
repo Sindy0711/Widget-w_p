@@ -12,7 +12,7 @@ import {
   WiThunderstorm,
 } from "react-icons/wi";
 import type { WeatherData } from "../../../types/weather";
-import { openWeather } from "../../../services/weatherService";
+import { hasWeatherApiKey, openWeather } from "../../../services/weatherService";
 import useProfileStore from "../../../stores/profileStore";
 
 const weatherIconMap: Record<string, IconType> = {
@@ -47,6 +47,15 @@ const WeatherWidget = () => {
       if (isMounted) {
         setIsLoading(true);
         setHasError(false);
+      }
+
+      if (!city.trim() || !hasWeatherApiKey) {
+        if (isMounted) {
+          setWeather(null);
+          setHasError(true);
+          setIsLoading(false);
+        }
+        return;
       }
 
       try {
@@ -102,7 +111,7 @@ const WeatherWidget = () => {
       <section>
         <p>Weather</p>
         <h3>Unable to load forecast</h3>
-        <p>Check your API key or network connection and try again.</p>
+        <p>Configure <code>VITE_WEATHER_API_KEY</code> or check your network connection and try again.</p>
       </section>
     );
   }

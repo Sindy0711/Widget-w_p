@@ -1,11 +1,16 @@
 import axios from "axios";
 
-// axios instance
+const weatherApiKey = import.meta.env.VITE_WEATHER_API_KEY?.trim() ?? "";
+const placeholderApiKey = "replace-with-your-openweather-api-key";
+
+export const hasWeatherApiKey =
+  weatherApiKey.length > 0 && weatherApiKey !== placeholderApiKey;
+
 export const openWeather = axios.create({
-  baseURL: "http://api.openweathermap.org",
+  baseURL: "https://api.openweathermap.org",
   params: {
-    appid: import.meta.env.VITE_WEATHER_API_KEY,
     units: "metric",
     lang: "en",
+    ...(hasWeatherApiKey ? { appid: weatherApiKey } : {}),
   },
 });

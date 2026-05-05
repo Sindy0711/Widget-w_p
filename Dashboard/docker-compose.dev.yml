@@ -1,0 +1,19 @@
+services:
+  widget-dev:
+    build:
+      context: .
+      target: development
+    env_file:
+      - .env
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./src:/app/src
+      - ./index.html:/app/index.html
+      - ./vite.config.js:/app/vite.config.js
+      - ./package.json:/app/package.json
+      - ./package-lock.json:/app/package-lock.json
+      - ./tsconfig.json:/app/tsconfig.json
+      - ./tsconfig.app.json:/app/tsconfig.app.json
+      - ./tsconfig.node.json:/app/tsconfig.node.json
+      - ./eslint.config.js:/app/eslint.config.js

@@ -2,7 +2,6 @@
 node_modules
 dist
 dist-ssr
-.env
 
 # Logs
 logs
@@ -28,4 +27,7 @@ lerna-debug.log*
 *.sw?
 
 # Local-only app files
+.env
+.env.*
+!.env.example
 *.local

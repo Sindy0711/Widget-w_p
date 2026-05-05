@@ -1,6 +1,9 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+const normalizeProfileValue = (value: string, maxLength: number) =>
+  value.trim().replace(/\s+/g, " ").slice(0, maxLength);
+
 type ProfileStore = {
   name: string;
   city: string;
@@ -17,7 +20,11 @@ const useProfileStore = create<ProfileStore>()(
       city: "",
       hasCompletedSetup: false,
       saveProfile: (name, city) => {
-        set({ name, city, hasCompletedSetup: true });
+        set({
+          name: normalizeProfileValue(name, 60),
+          city: normalizeProfileValue(city, 80),
+          hasCompletedSetup: true,
+        });
       },
     }),
     {
