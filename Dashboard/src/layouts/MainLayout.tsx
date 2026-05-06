@@ -1,11 +1,11 @@
 import MainContent from "../components/MainContent/MainContent";
 import  Settings from "../components/Settings/Settings";
 import SideBar from "../components/Sidebar/Sidebar";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 
 export default function MainLayout() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <div className="min-h-screen bg-slate-950 text-slate-100 lg:grid lg:grid-cols-[17rem_minmax(0,1fr)]">
         <SideBar />
         <main className="min-w-0 bg-slate-950">
@@ -18,6 +18,6 @@ export default function MainLayout() {
           </div>
         </main>
       </div>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
