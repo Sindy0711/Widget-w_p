@@ -1,13 +1,15 @@
 import { useState } from "react";
 import useClockStore from "../../stores/clockStore";
 import useProfileStore from "../../stores/profileStore";
-import { FiUser, FiMapPin } from "react-icons/fi";
+import { FiUser, FiMapPin, FiAlertCircle } from "react-icons/fi";
+import { motion } from "framer-motion";
 
 
 export default function Settings() {
-  const  {settings , saveSettings} = useClockStore();
-  const {name , city, saveProfile } = useProfileStore();
+  const { settings, saveSettings } = useClockStore();
+  const { name, city, saveProfile } = useProfileStore();
   const [isDirty, setIsDirty] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     name: name,
@@ -33,10 +35,15 @@ export default function Settings() {
   };
 
   const handleSave = () => {
-    if(!form.name.trim() || !form.city.trim() ){
-      alert("Please fill all fields correctly.");
+    if (!form.name.trim()) {
+      setError("Name cannot be empty.");
       return;
     }
+    if (!form.city.trim()) {
+      setError("City cannot be empty.");
+      return;
+    }
+    setError(null);
     saveProfile(form.name, form.city);
     saveSettings({ work: form.work, break: form.breakMin, longBreak: form.longBreak });
     setIsDirty(false);
@@ -44,7 +51,12 @@ export default function Settings() {
 
 
   return (
-    <div className="max-w-[1500px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 2xl:gap-8 auto-rows-min ">
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+      className="max-w-[1500px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 2xl:gap-8 auto-rows-min"
+    >
       <section className="lg:col-span-12 xl:col-span-6 flex flex-col gap-6 2xl:gap-8">
         <article className="p-8 rounded-3xl flex-1 bg-[var(--surface)] border border-[var(--border)] flex flex-col transition-all hover:shadow-[var(--shadow-soft)] duration-500">
           <h1 className="text-3xl font-semibold text-gray-800 dark:text-white">Settings</h1>
@@ -52,14 +64,30 @@ export default function Settings() {
             <p className="text-xs font-semibold uppercase tracking-widest my-4 text-[var(--text-muted)]">
             General
           </p>
+          {error && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--danger-soft)] text-[var(--danger)] text-sm mb-2">
+              <FiAlertCircle size={14} />
+              {error}
+            </div>
+          )}
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-sm text-[var(--text-muted)] flex items-center gap-1.5"><FiUser size={13} />Name</label>
-              <input className="flex items-center rounded-md bg-white/5 pl-3 outline-1 -outline-offset-1 outline-gray-600 has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2 has-[input:focus-within]:outline-indigo-500" type="text" value={form.name} onChange={(e) => handleChange("name", e.target.value)} />
+              <input
+                className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-2.5 text-sm text-[var(--text-heading)] focus:outline-none focus:border-[var(--accent)] transition-colors"
+                type="text"
+                value={form.name}
+                onChange={(e) => { handleChange("name", e.target.value); setError(null); }}
+              />
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-sm text-[var(--text-muted)] flex items-center gap-1.5"><FiMapPin size={13} />City</label>
-              <input className="flex items-center rounded-md bg-white/5 pl-3 outline-1 -outline-offset-1 outline-gray-600 has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2 has-[input:focus-within]:outline-indigo-500" type="text" value={form.city} onChange={(e) => handleChange("city", e.target.value)} />
+              <input
+                className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-2.5 text-sm text-[var(--text-heading)] focus:outline-none focus:border-[var(--accent)] transition-colors"
+                type="text"
+                value={form.city}
+                onChange={(e) => { handleChange("city", e.target.value); setError(null); }}
+              />
             </div>
           </div>
           </div>
@@ -69,18 +97,34 @@ export default function Settings() {
           </p>
           <div className="grid grid-cols-3 gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm text-[var(--text-muted)] flex items-center gap-1.5">Work (min)</label>
-              <input className="flex items-center rounded-md bg-white/5 pl-3 outline-1 -outline-offset-1 outline-gray-600 has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2 has-[input:focus-within]:outline-indigo-500" type="number" min="10" max="120" step="5" value={form.work} onChange={(e) => handleChange("work" , e.target.value)} />
+              <label className="text-sm text-[var(--text-muted)]">Work (min)</label>
+              <input
+                className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-2.5 text-sm text-[var(--text-heading)] focus:outline-none focus:border-[var(--accent)] transition-colors"
+                type="number" min="10" max="120" step="5"
+                value={form.work}
+                onChange={(e) => handleChange("work", e.target.value)}
+              />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm text-[var(--text-muted)] flex items-center gap-1.5">Short break</label>
-              <input className="flex items-center rounded-md bg-white/5 pl-3 outline-1 -outline-offset-1 outline-gray-600 has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2 has-[input:focus-within]:outline-indigo-500" type="number"  min="5" max="10" step="1" value={form.breakMin}onChange={(e) => handleChange("breakMin" , e.target.value)} />
+              <label className="text-sm text-[var(--text-muted)]">Short break</label>
+              <input
+                className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-2.5 text-sm text-[var(--text-heading)] focus:outline-none focus:border-[var(--accent)] transition-colors"
+                type="number" min="5" max="30" step="1"
+                value={form.breakMin}
+                onChange={(e) => handleChange("breakMin", e.target.value)}
+              />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm text-[var(--text-muted)] flex items-center gap-1.5">Long break</label>
-              <input className="flex items-center rounded-md bg-white/5 pl-3 outline-1 -outline-offset-1 outline-gray-600 has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2 has-[input:focus-within]:outline-indigo-500" type="number" min="15" max="60" step="5" value={form.longBreak} onChange={(e) => handleChange("longBreak" , e.target.value)}/>
+              <label className="text-sm text-[var(--text-muted)]">Long break</label>
+              <input
+                className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-2.5 text-sm text-[var(--text-heading)] focus:outline-none focus:border-[var(--accent)] transition-colors"
+                type="number" min="15" max="60" step="5"
+                value={form.longBreak}
+                onChange={(e) => handleChange("longBreak", e.target.value)}
+              />
             </div>
-          </div></div>
+          </div>
+          </div>
           <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-[var(--border)]">
             <button
               onClick={handleCancel}
@@ -97,10 +141,9 @@ export default function Settings() {
               Save
             </button>
           </div>
-        </article>  
+        </article>
       </section>
-      {/* <section className="lg:col-span-12 xl:col-span-6 flex flex-col gap-6 2xl:gap-8"></section> */}
-    </div>
+    </motion.div>
   )
 }
 

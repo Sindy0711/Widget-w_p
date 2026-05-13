@@ -1,7 +1,6 @@
 import type { IconType } from "react-icons";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
-  // WiHumidity,
   WiStrongWind,
   WiCloud,
   WiCloudy,
@@ -10,10 +9,11 @@ import {
   WiRain,
   WiSnow,
   WiThunderstorm,
+  WiThermometer,
+  WiHumidity,
 } from "react-icons/wi";
-import type { WeatherData } from "../../../types/weather";
-import { hasWeatherApiKey, openWeather } from "../../../services/weatherService";
 import useProfileStore from "../../../stores/profileStore";
+import useWeatherStore from "../../../stores/weatherStore";
 
 const weatherIconMap: Record<string, IconType> = {
   clear: WiDaySunny,
@@ -34,149 +34,129 @@ const weatherIconMap: Record<string, IconType> = {
 };
 
 const WeatherWidget = () => {
-  const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
-  const city = useProfileStore((state) => state.city) ;
-
+  const city = useProfileStore((state) => state.city);
+  const { weather, isLoading, hasError, fetchWeatherByCity } = useWeatherStore();
 
   useEffect(() => {
-    let isMounted = true;
+    fetchWeatherByCity(city);
+  }, [city, fetchWeatherByCity]);
 
-    const fetchWeather = async () => {
-      if (isMounted) {
-        setIsLoading(true);
-        setHasError(false);
-      }
-
-      if (!city.trim() || !hasWeatherApiKey) {
-        if (isMounted) {
-          setWeather(null);
-          setHasError(true);
-          setIsLoading(false);
-        }
-        return;
-      }
-
-      try {
-        const geo = await openWeather.get("/geo/1.0/direct", {
-          params: {
-            q: city, 
-            limit: 1,
-          },
-        });
-
-        if (geo.data && geo.data.length > 0) {
-          const { lat, lon } = geo.data[0];
-          const response = await openWeather.get("/data/2.5/weather", {
-            params: { lat, lon },
-          });
-
-          if (!isMounted) return;
-
-          setWeather(response.data);
-          setHasError(false);
-        } else if (isMounted) {
-          setHasError(true);
-        }
-      } catch (error) {
-        console.error(error);
-        if (isMounted) {
-          setHasError(true);
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    fetchWeather();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [city]);
-
+  // --- Loading skeleton ---
   if (isLoading) {
     return (
-      <div>
-        <p>Loading weather...</p>
-      </div>
-    );
-  }
-
-  if (hasError || !weather) {
-    return (
-      <section>
-        <p>Weather</p>
-        <h3>Unable to load forecast</h3>
-        <p>Configure <code>VITE_WEATHER_API_KEY</code> or check your network connection and try again.</p>
+      <section className="animate-pulse">
+        <p className="text-xs font-semibold uppercase tracking-widest mb-3 text-[var(--text-muted)]">
+          Local forecast
+        </p>
+        <div className="h-8 w-40 rounded-lg bg-[var(--surface-muted)] mb-4" />
+        <div className="flex items-center gap-4 mb-6">
+          <div className="h-14 w-14 rounded-full bg-[var(--surface-muted)]" />
+          <div className="space-y-2">
+            <div className="h-10 w-20 rounded bg-[var(--surface-muted)]" />
+            <div className="h-4 w-28 rounded bg-[var(--surface-muted)]" />
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-16 rounded-xl bg-[var(--surface-muted)]" />
+          ))}
+        </div>
       </section>
     );
   }
 
-  const condition = weather.weather[0].main ?? "";
-  const description = weather.weather[0].description ?? "";
+  // --- Error state ---
+  if (hasError || !weather || !weather.weather || !weather.main) {
+    return (
+      <section>
+        <p className="text-xs font-semibold uppercase tracking-widest mb-3 text-[var(--text-muted)]">
+          Local forecast
+        </p>
+        <div className="flex flex-col items-center justify-center py-6 text-center gap-2">
+          <WiCloud className="text-5xl text-[var(--text-muted)]" />
+          <h3 className="font-semibold text-[var(--text-heading)]">Unable to load forecast</h3>
+          <p className="text-xs text-[var(--text-muted)] max-w-xs">
+            Configure your OpenWeather API key in{" "}
+            <span className="font-mono text-[var(--accent)]">Api Keys</span>{" "}
+            or check your city name in{" "}
+            <span className="font-mono text-[var(--accent)]">Settings</span>.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  const condition = weather?.weather?.[0]?.main ?? "";
+  const description = weather?.weather?.[0]?.description ?? "";
   const todayLabel = new Intl.DateTimeFormat("en-US", {
     weekday: "long",
     day: "numeric",
     month: "short",
   }).format(new Date());
   const WeatherIcon = weatherIconMap[condition.toLowerCase()] || WiDaySunny;
+
   return (
     <section>
-      <header className="grid grid-flow-col ">
-        <div className="col-span-6">
-          <p className="text-xs font-semibold uppercase tracking-widest mb-3 text-[var(--text-muted)]">
+      {/* Header */}
+      <div className="flex items-start justify-between mb-5">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-1 text-[var(--text-muted)]">
             Local forecast
           </p>
-          <h3 className="text-3xl font-semibold tracking-tight text-[var(--text-heading)]">
+          <h3 className="text-2xl font-semibold tracking-tight text-[var(--text-heading)]">
             {weather.name}
           </h3>
         </div>
-        <p className="col-span-6 text-end text-xs font-semibold uppercase tracking-widest mb-3 text-[var(--text-muted)]">
+        <p className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)] text-right mt-1">
           {todayLabel}
         </p>
-      </header>
+      </div>
 
-      <div>
-        <div aria-hidden="true">
-          <WeatherIcon />
+      {/* Main temp + icon */}
+      <div className="flex items-center gap-5 mb-6">
+        <div className="text-6xl text-[var(--accent)] leading-none">
+          <WeatherIcon aria-hidden="true" />
         </div>
         <div>
-          <p>
-            {Math.round(weather.main.temp)}
-            °C
+          <p className="text-5xl font-bold tracking-tight text-[var(--text-heading)] leading-none">
+            {Math.round(weather.main.temp)}°C
           </p>
-          <p>
-            <span>{condition}</span> <span>{description}</span>
+          <p className="text-sm text-[var(--text-muted)] mt-1 capitalize">
+            {condition} · {description}
           </p>
         </div>
       </div>
 
-      <div className="grid grid-flow-col">
-        <div className="col-span-3">
-          <WeatherIcon aria-hidden="true" />
-          <dt>Feels like</dt>
-          <dd>
-            {Math.round(weather.main.feels_like)}
-            °C
+      {/* Stats chips — correct icons per stat */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="flex flex-col items-center gap-1 p-3 rounded-xl bg-[var(--surface-muted)] text-center">
+          <WiThermometer className="text-2xl text-[var(--accent)]" aria-hidden="true" />
+          <dt className="text-[0.65rem] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+            Feels like
+          </dt>
+          <dd className="text-sm font-semibold text-[var(--text-heading)]">
+            {Math.round(weather.main.feels_like)}°C
           </dd>
         </div>
-        <div className="col-span-3  ">
-          <dt>
-            <WeatherIcon aria-hidden="true" />
+
+        <div className="flex flex-col items-center gap-1 p-3 rounded-xl bg-[var(--surface-muted)] text-center">
+          <WiHumidity className="text-2xl text-[var(--accent)]" aria-hidden="true" />
+          <dt className="text-[0.65rem] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
             Humidity
           </dt>
-          <dd>{weather.main.humidity}%</dd>
+          <dd className="text-sm font-semibold text-[var(--text-heading)]">
+            {weather.main.humidity}%
+          </dd>
         </div>
-        <div className="col-span-3 ">
-          <dt>
-            <WeatherIcon aria-hidden="true" />
+
+        <div className="flex flex-col items-center gap-1 p-3 rounded-xl bg-[var(--surface-muted)] text-center">
+          <WiStrongWind className="text-2xl text-[var(--accent)]" aria-hidden="true" />
+          <dt className="text-[0.65rem] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
             Wind
           </dt>
-          <dd>{Math.round(weather.wind.speed)} m/s</dd>
+          <dd className="text-sm font-semibold text-[var(--text-heading)]">
+            {Math.round(weather.wind.speed)} m/s
+          </dd>
         </div>
       </div>
     </section>

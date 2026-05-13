@@ -1,42 +1,34 @@
-# Dashboard
+# Pulse Board (Dashboard)
 
-## Local setup
+A stunning, responsive, personalized personal dashboard application built with **React 19**, **TypeScript**, **Vite**, **TailwindCSS v4**, and **Zustand**. Optimized for instant static and serverless deployment to **Vercel**.
 
-1. Copy `.env.example` to `.env`.
-2. Set `VITE_WEATHER_API_KEY` to your own OpenWeather API key.
-3. Run `npm install`.
-4. Start the app with `npm run dev`.
+## Features
+- **Smart Greeting & Local Time**: Automatically adapts greetings based on the time of day.
+- **Weather Widget**: Integrated live local forecast utilizing OpenWeather API.
+- **Pomodoro Timer**: Complete productivity flow timer with authentic audio session completion alerts.
+- **Todo Manager**: Persistent task manager stored safely in browser local storage.
+- **Client-side API Key Management**: Dedicated UI allowing users to bring their own API Keys without risking upstream limitations.
 
-## Docker
+## Local Setup
 
-### Production
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-Build the image with a build argument instead of copying secrets into the image context:
+## Deployment & Security Architecture
 
-```bash
-docker build --build-arg VITE_WEATHER_API_KEY=your_api_key -t dashboard .
-```
+This application is purposefully designed to run seamlessly on **Vercel** with top-tier API security:
 
-Or use Docker Compose after setting `VITE_WEATHER_API_KEY` in your local `.env` file:
+### 1. Serverless Proxy Integration
+To prevent exposing sensitive API keys directly in client-side bundles, API calls route internally through a serverless middleman:
+- Upstream network fetches call `/api/weather` internally.
+- The **Vercel Serverless Function** (`api/weather.js`) securely injects the production API Key configured directly inside Vercel's private **Environment Variables** console.
 
-```bash
-docker compose up --build
-```
-
-### Development
-
-Use the dedicated development Compose file for hot reload:
-
-```bash
-docker compose -f docker-compose.dev.yml up --build
-```
-
-This dev setup only mounts the files the Vite container needs for live updates instead of bind-mounting the whole project tree.
-If you change dependencies in `package.json`, rerun the command with `--build` so the container reinstalls packages.
-
-## Security notes
-
-- Never commit a real `.env` file or API key to source control.
-- The weather API is called over HTTPS only.
-- The production Nginx config adds basic security headers and SPA-safe routing.
-- The development container mounts only app source and required config files, which reduces filesystem exposure compared with `.:/app`.
+### 2. Client-side Fallback & Customization
+- Users can utilize the **Api Keys** configuration panel within the app to enter custom OpenWeather credentials stored securely in browser `localStorage`.
+- When custom keys are detected, the app automatically switches to direct client-side requests to maximize speed and localized usage quotas.

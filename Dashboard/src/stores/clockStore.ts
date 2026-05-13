@@ -74,7 +74,21 @@ const useClockStore = create<ClockStore>()(
               : "break"
             : "work";
 
-        if (mode === "work") console.log("bell");
+        if (mode === "work") {
+          try {
+            const ctx = new AudioContext();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(880, ctx.currentTime);
+            gain.gain.setValueAtTime(0.4, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 1.2);
+          } catch { /* AudioContext not available */ }
+        }
 
         set({
           timeLeft: settings[nextMode] * 60,

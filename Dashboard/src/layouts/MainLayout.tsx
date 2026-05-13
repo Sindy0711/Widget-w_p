@@ -1,5 +1,5 @@
 import MainContent from "../components/MainContent/MainContent";
-import  Settings from "../components/Settings/Settings";
+import Settings from "../components/Settings/Settings";
 import SideBar from "../components/Sidebar/Sidebar";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
@@ -13,7 +13,6 @@ export default function MainLayout() {
             <Routes>
               <Route path="/" element={<MainContent />} />
               <Route path="/settings" element={<Settings />} />
-              <Route path="/api-keys" element={<div>API Keys</div>} />
             </Routes>
           </div>
         </main>

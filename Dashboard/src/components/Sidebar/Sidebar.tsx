@@ -1,7 +1,7 @@
 import logoUrl from "../../assets/react.svg";
+import { useState, useEffect } from "react";
 import { FaHome } from "react-icons/fa";
 import { IoIosSettings } from "react-icons/io";
-import { FaKey } from "react-icons/fa6";
 import { NavLink } from "react-router-dom";
 
 const navItems = [
@@ -15,14 +15,26 @@ const navItems = [
     href: "/settings",
     icon: IoIosSettings,
   },
-  {
-    label: "Api Keys",
-    href: "/api-keys",
-    icon: FaKey,
-  },
 ];
 
+function useTimeStatus() {
+  const getStatus = () => {
+    const h = new Date().getHours();
+    if (h >= 5 && h < 12) return "Morning Flow";
+    if (h >= 12 && h < 17) return "Afternoon Session";
+    if (h >= 17 && h < 21) return "Evening Wind-down";
+    return "Night Mode";
+  };
+  const [status, setStatus] = useState(getStatus);
+  useEffect(() => {
+    const id = setInterval(() => setStatus(getStatus()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+  return status;
+}
+
 export default function SideBar() {
+  const timeStatus = useTimeStatus();
   return (
     <aside className=" h-screen sticky top-0 border-b border-slate-800 bg-slate-950 px-3 py-3 lg:min-h-screen lg:border-b-0 lg:border-r lg:px-4 lg:py-4">
       <div className="flex h-full flex-col">
@@ -102,7 +114,7 @@ export default function SideBar() {
               <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
               <div>
                 <p className="text-sm font-medium text-slate-200">Online</p>
-                <p className="text-xs text-slate-500">Morning Flow</p>
+                <p className="text-xs text-slate-500">{timeStatus}</p>
               </div>
             </div>
           </div>
