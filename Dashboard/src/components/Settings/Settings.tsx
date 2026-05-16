@@ -1,9 +1,14 @@
 import { useState } from "react";
-import useClockStore from "../../stores/clockStore";
+import useClockStore, { DEFAULT_SETTINGS } from "../../stores/clockStore";
 import useProfileStore from "../../stores/profileStore";
-import { FiUser, FiMapPin, FiAlertCircle } from "react-icons/fi";
+import { FiAlertCircle, FiClock, FiMapPin, FiRefreshCw, FiSave, FiUser } from "react-icons/fi";
 import { motion } from "framer-motion";
+import { openWeatherCityOptions } from "../../constants/weatherCities";
 
+const toNumber = (value: string, fallback: number) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
 
 export default function Settings() {
   const { settings, saveSettings } = useClockStore();
@@ -17,12 +22,13 @@ export default function Settings() {
     work: settings.work,
     breakMin: settings.break,
     longBreak: settings.longBreak,
-  });;
+  });
   
-  const handleChange = (key : keyof typeof form , value: string | number) =>{ 
-    setForm(prev => ({...prev , [key]: value}));
+  const handleChange = (key: keyof typeof form, value: string | number) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
     setIsDirty(true);
-  }
+  };
+
   const handleCancel = () => {
     setForm({
       name: name,
@@ -32,6 +38,7 @@ export default function Settings() {
       longBreak: settings.longBreak,
     });
     setIsDirty(false);
+    setError(null);
   };
 
   const handleSave = () => {
@@ -45,8 +52,22 @@ export default function Settings() {
     }
     setError(null);
     saveProfile(form.name, form.city);
-    saveSettings({ work: form.work, break: form.breakMin, longBreak: form.longBreak });
+    saveSettings({
+      work: Number(form.work),
+      break: Number(form.breakMin),
+      longBreak: Number(form.longBreak),
+    });
     setIsDirty(false);
+  };
+
+  const handleResetDefault = () => {
+    setForm((prev) => ({
+      ...prev,
+      work: DEFAULT_SETTINGS.work,
+      breakMin: DEFAULT_SETTINGS.break,
+      longBreak: DEFAULT_SETTINGS.longBreak,
+    }));
+    setIsDirty(true);
   };
 
 
@@ -55,89 +76,121 @@ export default function Settings() {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      className="max-w-[1500px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 2xl:gap-8 auto-rows-min"
+      className="mx-auto grid max-w-[1500px] grid-cols-1 gap-6 auto-rows-min lg:grid-cols-12 2xl:gap-8"
     >
-      <section className="lg:col-span-12 xl:col-span-6 flex flex-col gap-6 2xl:gap-8">
-        <article className="p-8 rounded-3xl flex-1 bg-[var(--surface)] border border-[var(--border)] flex flex-col transition-all hover:shadow-[var(--shadow-soft)] duration-500">
-          <h1 className="text-3xl font-semibold text-gray-800 dark:text-white">Settings</h1>
-          <div className="">
-            <p className="text-xs font-semibold uppercase tracking-widest my-4 text-[var(--text-muted)]">
-            General
-          </p>
+      <section className="flex flex-col gap-6 lg:col-span-12 xl:col-span-7 2xl:gap-8">
+        <article className="flex flex-1 flex-col rounded-lg border border-[var(--border)] bg-[var(--surface)] p-6 transition-all duration-500 hover:shadow-[var(--shadow-soft)] lg:p-8">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase text-[var(--text-muted)]">
+                Preferences
+              </p>
+              <h1 className="text-3xl font-semibold tracking-tight text-[var(--text-heading)]">
+                Settings
+              </h1>
+            </div>
+            <button
+              onClick={handleResetDefault}
+              className="inline-flex items-center justify-center gap-2 rounded-md border border-[var(--border)] px-3 py-2 text-sm font-semibold text-[var(--text-heading)] transition hover:bg-[var(--surface-muted)]"
+              type="button"
+            >
+              <FiRefreshCw aria-hidden="true" />
+              Reset timer
+            </button>
+          </div>
+
+          <div className="mt-6">
+            <p className="my-4 text-xs font-semibold uppercase text-[var(--text-muted)]">
+              General
+            </p>
           {error && (
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--danger-soft)] text-[var(--danger)] text-sm mb-2">
+            <div className="mb-2 flex items-center gap-2 rounded-md bg-[var(--danger-soft)] px-3 py-2 text-sm text-[var(--danger)]">
               <FiAlertCircle size={14} />
               {error}
             </div>
           )}
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm text-[var(--text-muted)] flex items-center gap-1.5"><FiUser size={13} />Name</label>
+              <label htmlFor="profile-name" className="flex items-center gap-1.5 text-sm text-[var(--text-muted)]"><FiUser size={13} />Name</label>
               <input
-                className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-2.5 text-sm text-[var(--text-heading)] focus:outline-none focus:border-[var(--accent)] transition-colors"
+                id="profile-name"
+                className="w-full rounded-md border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-2.5 text-sm text-[var(--text-heading)] transition-colors focus:border-[var(--accent)] focus:outline-none"
                 type="text"
                 value={form.name}
                 onChange={(e) => { handleChange("name", e.target.value); setError(null); }}
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm text-[var(--text-muted)] flex items-center gap-1.5"><FiMapPin size={13} />City</label>
-              <input
-                className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-2.5 text-sm text-[var(--text-heading)] focus:outline-none focus:border-[var(--accent)] transition-colors"
-                type="text"
+              <label htmlFor="profile-city" className="flex items-center gap-1.5 text-sm text-[var(--text-muted)]"><FiMapPin size={13} />City</label>
+              <select
+                id="profile-city"
+                className="w-full rounded-md border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-2.5 text-sm text-[var(--text-heading)] transition-colors focus:border-[var(--accent)] focus:outline-none"
                 value={form.city}
                 onChange={(e) => { handleChange("city", e.target.value); setError(null); }}
-              />
+              >
+                <option value="" disabled>
+                  Select a city or province in Vietnam
+                </option>
+                {openWeatherCityOptions.map((city) => (
+                  <option key={city.value} value={city.value}>
+                    {city.label}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
           </div>
-          <div className=""> 
-            <p className="text-xs font-semibold uppercase tracking-widest my-4 text-[var(--text-muted)]">
-            pomodoro
+          <div className="mt-2"> 
+            <p className="my-4 flex items-center gap-2 text-xs font-semibold uppercase text-[var(--text-muted)]">
+            <FiClock aria-hidden="true" /> Pomodoro
           </p>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm text-[var(--text-muted)]">Work (min)</label>
+              <label htmlFor="work-min" className="text-sm text-[var(--text-muted)]">Work (min)</label>
               <input
-                className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-2.5 text-sm text-[var(--text-heading)] focus:outline-none focus:border-[var(--accent)] transition-colors"
+                id="work-min"
+                className="w-full rounded-md border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-2.5 text-sm text-[var(--text-heading)] transition-colors focus:border-[var(--accent)] focus:outline-none"
                 type="number" min="10" max="120" step="5"
                 value={form.work}
-                onChange={(e) => handleChange("work", e.target.value)}
+                onChange={(e) => handleChange("work", toNumber(e.target.value, settings.work))}
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm text-[var(--text-muted)]">Short break</label>
+              <label htmlFor="short-break" className="text-sm text-[var(--text-muted)]">Short break</label>
               <input
-                className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-2.5 text-sm text-[var(--text-heading)] focus:outline-none focus:border-[var(--accent)] transition-colors"
+                id="short-break"
+                className="w-full rounded-md border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-2.5 text-sm text-[var(--text-heading)] transition-colors focus:border-[var(--accent)] focus:outline-none"
                 type="number" min="5" max="30" step="1"
                 value={form.breakMin}
-                onChange={(e) => handleChange("breakMin", e.target.value)}
+                onChange={(e) => handleChange("breakMin", toNumber(e.target.value, settings.break))}
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm text-[var(--text-muted)]">Long break</label>
+              <label htmlFor="long-break" className="text-sm text-[var(--text-muted)]">Long break</label>
               <input
-                className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-2.5 text-sm text-[var(--text-heading)] focus:outline-none focus:border-[var(--accent)] transition-colors"
+                id="long-break"
+                className="w-full rounded-md border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-2.5 text-sm text-[var(--text-heading)] transition-colors focus:border-[var(--accent)] focus:outline-none"
                 type="number" min="15" max="60" step="5"
                 value={form.longBreak}
-                onChange={(e) => handleChange("longBreak", e.target.value)}
+                onChange={(e) => handleChange("longBreak", toNumber(e.target.value, settings.longBreak))}
               />
             </div>
           </div>
           </div>
-          <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-[var(--border)]">
+          <div className="mt-6 flex flex-col-reverse gap-2 border-t border-[var(--border)] pt-4 sm:flex-row sm:justify-end">
             <button
               onClick={handleCancel}
               disabled={!isDirty}
-              className="px-5 py-2 rounded-xl text-sm border border-[var(--border)] text-[var(--text)] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[var(--surface-secondary)] transition"
+              className="rounded-md border border-[var(--border)] px-5 py-2 text-sm text-[var(--text)] transition hover:bg-[var(--surface-secondary)] disabled:cursor-not-allowed disabled:opacity-40"
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
               disabled={!isDirty}
-              className="px-5 py-2 rounded-xl text-sm bg-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500  disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90"
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-[var(--accent)] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[var(--accent-strong)] disabled:cursor-not-allowed disabled:opacity-40"
             >
+              <FiSave aria-hidden="true" />
               Save
             </button>
           </div>

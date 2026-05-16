@@ -7,16 +7,18 @@ const TodoList = () => {
 
   if (todos.length === 0) {
     return (
-      <div>
-        <p>No tasks yet.</p>
-        <span>Add your first item to start the day with a clear plan.</span>
+      <div className="flex min-h-48 flex-col items-center justify-center rounded-lg border border-dashed border-[var(--border)] bg-[var(--surface-muted)] px-6 text-center">
+        <p className="font-semibold text-[var(--text-heading)]">No tasks yet.</p>
+        <span className="mt-1 max-w-sm text-sm text-[var(--text-muted)]">
+          Add your first item to start the day with a clear plan.
+        </span>
       </div>
     );
   }
 
   return (
     <AnimatePresence>
-      <ul>
+      <ul className="overflow-hidden rounded-lg border border-[var(--border)]">
         {todos.map((todo) => (
           <TodoItem key={todo.id} todo={todo} />
         ))}

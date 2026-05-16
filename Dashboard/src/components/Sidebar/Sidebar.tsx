@@ -1,4 +1,3 @@
-import logoUrl from "../../assets/react.svg";
 import { useState, useEffect } from "react";
 import { FaHome } from "react-icons/fa";
 import { IoIosSettings } from "react-icons/io";
@@ -11,7 +10,7 @@ const navItems = [
     icon: FaHome,
   },
   {
-    label: "Setting",
+    label: "Settings",
     href: "/settings",
     icon: IoIosSettings,
   },
@@ -36,15 +35,15 @@ function useTimeStatus() {
 export default function SideBar() {
   const timeStatus = useTimeStatus();
   return (
-    <aside className=" h-screen sticky top-0 border-b border-slate-800 bg-slate-950 px-3 py-3 lg:min-h-screen lg:border-b-0 lg:border-r lg:px-4 lg:py-4">
-      <div className="flex h-full flex-col">
-        <div className="flex items-center gap-3 rounded-3xl border border-slate-800 bg-slate-950 px-3 py-3.5">
-          <div className="grid h-12 w-12 place-items-center rounded-2xl border border-slate-800 bg-slate-900">
-            <img className="h-8 w-8" src={logoUrl} alt="Logo" />
+    <aside className="sticky top-0 z-40 border-b border-slate-800 bg-slate-950/95 px-3 py-3 backdrop-blur lg:h-screen lg:border-b-0 lg:border-r lg:px-4 lg:py-4">
+      <div className="flex h-full flex-col gap-3 lg:gap-0">
+        <div className="flex items-center gap-3 rounded-lg border border-slate-800 bg-slate-950 px-3 py-3">
+          <div className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-emerald-400/30 bg-emerald-400/10 text-sm font-black text-emerald-200">
+            PB
           </div>
 
           <div className="min-w-0">
-            <p className="text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
+            <p className="text-[0.65rem] font-semibold uppercase text-slate-500">
               Dashboard
             </p>
             <h1 className="mt-1 text-base font-semibold tracking-tight text-white">
@@ -53,12 +52,12 @@ export default function SideBar() {
           </div>
         </div>
 
-        <div className="mt-8">
-          <p className="px-3 text-[0.65rem] font-semibold uppercase tracking-[0.28em] text-slate-500">
+        <div className="lg:mt-8">
+          <p className="hidden px-3 text-[0.65rem] font-semibold uppercase text-slate-500 lg:block">
             Navigation
           </p>
           <nav className="mt-3" aria-label="Primary">
-            <ul className="space-y-1.5">
+            <ul className="grid grid-cols-2 gap-2 lg:block lg:space-y-1.5">
               {navItems.map((item) => {
                 const Icon = item.icon;
 
@@ -67,7 +66,7 @@ export default function SideBar() {
                     <NavLink
                       to={item.href}
                       className={({ isActive }) =>
-                        `group flex items-center gap-3 rounded-2xl border px-3 py-3 transition-colors duration-200 ${
+                        `group flex items-center gap-3 rounded-lg border px-3 py-3 transition-colors duration-200 ${
                           isActive
                             ? "border-slate-800 bg-slate-900 text-white"
                             : "border-transparent bg-transparent text-slate-400 hover:border-slate-800 hover:bg-slate-900/70 hover:text-slate-200"
@@ -77,7 +76,7 @@ export default function SideBar() {
                       {({ isActive }) => (
                         <>
                           <div
-                            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border text-base transition-colors ${
+                            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md border text-base transition-colors ${
                               isActive
                                 ? "border-slate-700 bg-slate-950 text-white"
                                 : "border-slate-800 bg-slate-950 text-slate-400 group-hover:text-slate-200"
@@ -91,7 +90,7 @@ export default function SideBar() {
                               {item.label}
                             </span>
                             {isActive ? (
-                              <span className="rounded-full border border-slate-700 px-2 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-slate-300">
+                              <span className="hidden rounded-full border border-slate-700 px-2 py-1 text-[0.62rem] font-semibold uppercase text-slate-300 sm:inline">
                                 Live
                               </span>
                             ) : (
@@ -108,8 +107,8 @@ export default function SideBar() {
           </nav>
         </div>
 
-        <div className="mt-auto pt-8">
-          <div className="rounded-3xl border border-slate-800 bg-slate-900 px-4 py-4">
+        <div className="mt-auto hidden pt-8 lg:block">
+          <div className="rounded-lg border border-slate-800 bg-slate-900 px-4 py-4">
             <div className="flex items-center gap-3">
               <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
               <div>

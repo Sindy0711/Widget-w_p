@@ -41,15 +41,14 @@ const WeatherWidget = () => {
     fetchWeatherByCity(city);
   }, [city, fetchWeatherByCity]);
 
-  // --- Loading skeleton ---
   if (isLoading) {
     return (
       <section className="animate-pulse">
-        <p className="text-xs font-semibold uppercase tracking-widest mb-3 text-[var(--text-muted)]">
+        <p className="mb-3 text-xs font-semibold uppercase text-[var(--text-muted)]">
           Local forecast
         </p>
-        <div className="h-8 w-40 rounded-lg bg-[var(--surface-muted)] mb-4" />
-        <div className="flex items-center gap-4 mb-6">
+        <div className="mb-4 h-8 w-40 rounded-lg bg-[var(--surface-muted)]" />
+        <div className="mb-6 flex items-center gap-4">
           <div className="h-14 w-14 rounded-full bg-[var(--surface-muted)]" />
           <div className="space-y-2">
             <div className="h-10 w-20 rounded bg-[var(--surface-muted)]" />
@@ -58,27 +57,24 @@ const WeatherWidget = () => {
         </div>
         <div className="grid grid-cols-3 gap-3">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="h-16 rounded-xl bg-[var(--surface-muted)]" />
+            <div key={i} className="h-16 rounded-lg bg-[var(--surface-muted)]" />
           ))}
         </div>
       </section>
     );
   }
 
-  // --- Error state ---
   if (hasError || !weather || !weather.weather || !weather.main) {
     return (
       <section>
-        <p className="text-xs font-semibold uppercase tracking-widest mb-3 text-[var(--text-muted)]">
+        <p className="mb-3 text-xs font-semibold uppercase text-[var(--text-muted)]">
           Local forecast
         </p>
-        <div className="flex flex-col items-center justify-center py-6 text-center gap-2">
+        <div className="flex flex-col items-center justify-center gap-2 py-6 text-center">
           <WiCloud className="text-5xl text-[var(--text-muted)]" />
           <h3 className="font-semibold text-[var(--text-heading)]">Unable to load forecast</h3>
-          <p className="text-xs text-[var(--text-muted)] max-w-xs">
-            Configure your OpenWeather API key in{" "}
-            <span className="font-mono text-[var(--accent)]">Api Keys</span>{" "}
-            or check your city name in{" "}
+          <p className="max-w-xs text-xs text-[var(--text-muted)]">
+            Check that the server has a weather API key configured and verify your city in{" "}
             <span className="font-mono text-[var(--accent)]">Settings</span>.
           </p>
         </div>
@@ -86,8 +82,8 @@ const WeatherWidget = () => {
     );
   }
 
-  const condition = weather?.weather?.[0]?.main ?? "";
-  const description = weather?.weather?.[0]?.description ?? "";
+  const condition = weather.weather[0]?.main ?? "";
+  const description = weather.weather[0]?.description ?? "";
   const todayLabel = new Intl.DateTimeFormat("en-US", {
     weekday: "long",
     day: "numeric",
@@ -97,41 +93,38 @@ const WeatherWidget = () => {
 
   return (
     <section>
-      {/* Header */}
-      <div className="flex items-start justify-between mb-5">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-widest mb-1 text-[var(--text-muted)]">
+          <p className="mb-1 text-xs font-semibold uppercase text-[var(--text-muted)]">
             Local forecast
           </p>
           <h3 className="text-2xl font-semibold tracking-tight text-[var(--text-heading)]">
             {weather.name}
           </h3>
         </div>
-        <p className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)] text-right mt-1">
+        <p className="mt-1 text-right text-xs font-semibold uppercase text-[var(--text-muted)]">
           {todayLabel}
         </p>
       </div>
 
-      {/* Main temp + icon */}
-      <div className="flex items-center gap-5 mb-6">
-        <div className="text-6xl text-[var(--accent)] leading-none">
+      <div className="mb-6 flex items-center gap-5">
+        <div className="text-6xl leading-none text-[var(--accent)]">
           <WeatherIcon aria-hidden="true" />
         </div>
         <div>
-          <p className="text-5xl font-bold tracking-tight text-[var(--text-heading)] leading-none">
+          <p className="text-5xl font-bold leading-none tracking-tight text-[var(--text-heading)]">
             {Math.round(weather.main.temp)}°C
           </p>
-          <p className="text-sm text-[var(--text-muted)] mt-1 capitalize">
+          <p className="mt-1 text-sm capitalize text-[var(--text-muted)]">
             {condition} · {description}
           </p>
         </div>
       </div>
 
-      {/* Stats chips — correct icons per stat */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="flex flex-col items-center gap-1 p-3 rounded-xl bg-[var(--surface-muted)] text-center">
+      <dl className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="flex flex-col items-center gap-1 rounded-lg bg-[var(--surface-muted)] p-3 text-center">
           <WiThermometer className="text-2xl text-[var(--accent)]" aria-hidden="true" />
-          <dt className="text-[0.65rem] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          <dt className="text-[0.65rem] font-semibold uppercase text-[var(--text-muted)]">
             Feels like
           </dt>
           <dd className="text-sm font-semibold text-[var(--text-heading)]">
@@ -139,9 +132,9 @@ const WeatherWidget = () => {
           </dd>
         </div>
 
-        <div className="flex flex-col items-center gap-1 p-3 rounded-xl bg-[var(--surface-muted)] text-center">
+        <div className="flex flex-col items-center gap-1 rounded-lg bg-[var(--surface-muted)] p-3 text-center">
           <WiHumidity className="text-2xl text-[var(--accent)]" aria-hidden="true" />
-          <dt className="text-[0.65rem] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          <dt className="text-[0.65rem] font-semibold uppercase text-[var(--text-muted)]">
             Humidity
           </dt>
           <dd className="text-sm font-semibold text-[var(--text-heading)]">
@@ -149,16 +142,16 @@ const WeatherWidget = () => {
           </dd>
         </div>
 
-        <div className="flex flex-col items-center gap-1 p-3 rounded-xl bg-[var(--surface-muted)] text-center">
+        <div className="flex flex-col items-center gap-1 rounded-lg bg-[var(--surface-muted)] p-3 text-center">
           <WiStrongWind className="text-2xl text-[var(--accent)]" aria-hidden="true" />
-          <dt className="text-[0.65rem] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+          <dt className="text-[0.65rem] font-semibold uppercase text-[var(--text-muted)]">
             Wind
           </dt>
           <dd className="text-sm font-semibold text-[var(--text-heading)]">
             {Math.round(weather.wind.speed)} m/s
           </dd>
         </div>
-      </div>
+      </dl>
     </section>
   );
 };
