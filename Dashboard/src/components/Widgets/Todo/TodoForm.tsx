@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
+import { FiPlus } from "react-icons/fi";
 import useTodoStore from "../../../stores/todoStore";
 
 const AddToDoForm = () => {
@@ -18,16 +19,22 @@ const AddToDoForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div className="mt-6 flex max-w-md gap-x-4">
+    <form onSubmit={handleSubmit} aria-label="Add task">
+      <div className="mt-6 flex w-full flex-col gap-3 sm:flex-row">
         <input
-          className="min-w-0 flex-auto rounded-md bg-white/5 px-3.5 py-2 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6"
+          className="min-w-0 flex-auto rounded-md border border-[var(--border)] bg-[var(--surface-muted)] px-3.5 py-2.5 text-base text-[var(--text-heading)] placeholder:text-[var(--text-muted)] focus:border-[var(--accent)] focus:outline-none sm:text-sm"
           type="text"
           value={text}
           onChange={(event) => setText(event.target.value)}
           placeholder="Write your next task..."
         />
-        <button className="flex-none rounded-md bg-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500  " type="submit">Add</button>
+        <button
+          className="inline-flex flex-none items-center justify-center gap-2 rounded-md bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--accent-strong)]"
+          type="submit"
+        >
+          <FiPlus aria-hidden="true" />
+          Add
+        </button>
       </div>
     </form>
   );

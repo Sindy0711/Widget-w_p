@@ -11,20 +11,17 @@ export const fetchWeatherByCity = async (city: string): Promise<WeatherData> => 
   if (!trimmedCity) {
     throw new Error("City is required");
   }
-  if (import.meta.env.DEV) {
-    const localKey = import.meta.env.VITE_WEATHER_API_KEY;
-    if (!localKey) {
-      throw new Error("Missing VITE_WEATHER_API_KEY in local .env");
-    }
+
+  const localKey = import.meta.env.VITE_WEATHER_API_KEY;
+
+  if (import.meta.env.DEV && localKey) {
     
-    // Get Coordinates
     const geo = await directAxios.get("/geo/1.0/direct", {
       params: { q: trimmedCity, limit: 1, appid: localKey },
     });
     
     if (!geo.data || geo.data.length === 0) throw new Error("City not found");
     
-    // Get Weather
     const { lat, lon } = geo.data[0];
     const res = await directAxios.get("/data/2.5/weather", {
       params: { lat, lon, appid: localKey },
@@ -39,6 +36,10 @@ export const fetchWeatherByCity = async (city: string): Promise<WeatherData> => 
       lang: "en",
     },
   });
+
+  if (!res.data?.main || !res.data?.weather) {
+    throw new Error("Weather service returned an unexpected response");
+  }
 
   return res.data;
 };

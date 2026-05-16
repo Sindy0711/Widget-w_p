@@ -1,50 +1,94 @@
-export default async function handler(req: any, res: any) {
-  // Phân tích query parameters để tương thích với cả Node.js HTTP thuần (Vite dev) và Vercel Serverless
-  const base = `http://${req.headers?.host || "localhost"}`;
-  const urlObj = new URL(req.url, base);
-  const query = req.query || Object.fromEntries(urlObj.searchParams);
+type QueryValue = string | string[] | undefined;
 
-  const { city, endpoint = "weather", lang = "en" } = query;
+type ServerlessRequest = {
+  headers?: {
+    host?: string;
+  };
+  query?: Record<string, QueryValue>;
+  url?: string;
+};
+
+type ServerlessResponse = {
+  statusCode: number;
+  setHeader: (name: string, value: string) => void;
+  end: (body?: string) => void;
+};
+
+type GeoResult = {
+  lat: number;
+  lon: number;
+};
+
+const json = (res: ServerlessResponse, statusCode: number, body: unknown) => {
+  res.statusCode = statusCode;
+  res.setHeader("Content-Type", "application/json; charset=utf-8");
+  return res.end(JSON.stringify(body));
+};
+
+const firstValue = (value: QueryValue) => (Array.isArray(value) ? value[0] : value);
+
+const readQuery = (req: ServerlessRequest) => {
+  const base = `http://${req.headers?.host || "localhost"}`;
+  const parsedUrl = new URL(req.url || "/", base);
+  const searchQuery = Object.fromEntries(parsedUrl.searchParams.entries());
+
+  return {
+    ...searchQuery,
+    ...req.query,
+  };
+};
+
+export default async function handler(req: ServerlessRequest, res: ServerlessResponse) {
+  const query = readQuery(req);
+  const city = firstValue(query.city)?.trim();
+  const lang = firstValue(query.lang)?.trim() || "en";
 
   if (!city) {
-    res.statusCode = 400;
-    res.setHeader("Content-Type", "application/json");
-    return res.end(JSON.stringify({ error: "City parameter is required" }));
+    return json(res, 400, { error: "City parameter is required" });
   }
 
-  const apiKey = process.env.WEATHER_API_KEY || "007cb1f340e9a0db0786ed0827f33ca4";
+  const apiKey = process.env.WEATHER_API_KEY;
 
   if (!apiKey) {
-    res.statusCode = 500;
-    res.setHeader("Content-Type", "application/json");
-    return res.end(JSON.stringify({ error: "Server weather API key is not configured" }));
+    return json(res, 500, { error: "Server weather API key is not configured" });
   }
 
   try {
-    const geoUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(city)}&limit=1&appid=${apiKey}`;
-    const geoResponse = await fetch(geoUrl);
-    const geoData = await geoResponse.json() as any[];
+    const geoUrl = new URL("https://api.openweathermap.org/geo/1.0/direct");
+    geoUrl.searchParams.set("q", city);
+    geoUrl.searchParams.set("limit", "1");
+    geoUrl.searchParams.set("appid", apiKey);
 
-    if (!geoData || geoData.length === 0) {
-      res.statusCode = 404;
-      res.setHeader("Content-Type", "application/json");
-      return res.end(JSON.stringify({ error: "City not found" }));
+    const geoResponse = await fetch(geoUrl);
+    if (!geoResponse.ok) {
+      return json(res, geoResponse.status, { error: "Unable to geocode city" });
     }
 
-    const { lat, lon } = geoData[0];
+    const geoData = (await geoResponse.json()) as GeoResult[];
+    const location = geoData[0];
 
-    const weatherUrl = `https://api.openweathermap.org/data/2.5/${endpoint}?lat=${lat}&lon=${lon}&units=metric&lang=${lang}&appid=${apiKey}`;
+    if (!location) {
+      return json(res, 404, { error: "City not found" });
+    }
+
+    const weatherUrl = new URL("https://api.openweathermap.org/data/2.5/weather");
+    weatherUrl.searchParams.set("lat", String(location.lat));
+    weatherUrl.searchParams.set("lon", String(location.lon));
+    weatherUrl.searchParams.set("units", "metric");
+    weatherUrl.searchParams.set("lang", lang);
+    weatherUrl.searchParams.set("appid", apiKey);
+
     const weatherResponse = await fetch(weatherUrl);
     const weatherData = await weatherResponse.json();
 
-    res.statusCode = 200;
-    res.setHeader("Content-Type", "application/json");
-    res.setHeader("Cache-Control", "s-maxage=600, stale-while-revalidate");
-    return res.end(JSON.stringify(weatherData));
+    if (!weatherResponse.ok) {
+      return json(res, weatherResponse.status, weatherData);
+    }
+
+    res.setHeader("Cache-Control", "s-maxage=600, stale-while-revalidate=3600");
+    return json(res, 200, weatherData);
   } catch (error) {
     console.error("Vercel Proxy Weather Error:", error);
-    res.statusCode = 500;
-    res.setHeader("Content-Type", "application/json");
-    return res.end(JSON.stringify({ error: "Failed to fetch weather data from upstream" }));
+    return json(res, 500, { error: "Failed to fetch weather data from upstream" });
   }
 }

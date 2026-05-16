@@ -1,13 +1,14 @@
-# Pulse Board (Dashboard)
+# Pulse Board
 
-A stunning, responsive, personalized personal dashboard application built with **React 19**, **TypeScript**, **Vite**, **TailwindCSS v4**, and **Zustand**. Optimized for instant static and serverless deployment to **Vercel**.
+Pulse Board is a responsive personal dashboard built with React 19, TypeScript, Vite, Tailwind CSS v4, Framer Motion, and Zustand.
 
 ## Features
-- **Smart Greeting & Local Time**: Automatically adapts greetings based on the time of day.
-- **Weather Widget**: Integrated live local forecast utilizing OpenWeather API.
-- **Pomodoro Timer**: Complete productivity flow timer with authentic audio session completion alerts.
-- **Todo Manager**: Persistent task manager stored safely in browser local storage.
-- **Client-side API Key Management**: Dedicated UI allowing users to bring their own API Keys without risking upstream limitations.
+
+- Personalized greeting, local clock, and setup flow
+- Live OpenWeather forecast through a Vercel serverless proxy
+- Persistent task list with edit, complete, and delete actions
+- Pomodoro timer with configurable work and break durations
+- Responsive app shell designed for desktop and mobile use
 
 ## Local Setup
 
@@ -15,20 +16,27 @@ A stunning, responsive, personalized personal dashboard application built with *
    ```bash
    npm install
    ```
-2. Start the development server:
+2. Create a local env file:
+   ```bash
+   cp .env.example .env
+   ```
+3. Add an OpenWeather API key:
+   ```bash
+   VITE_WEATHER_API_KEY=your_openweather_key
+   ```
+4. Start the development server:
    ```bash
    npm run dev
    ```
 
-## Deployment & Security Architecture
+## Production Deployment
 
-This application is purposefully designed to run seamlessly on **Vercel** with top-tier API security:
+The production app expects `WEATHER_API_KEY` to be configured as a private Vercel environment variable. Browser requests call `/api/weather`, and the serverless function injects the secret key before contacting OpenWeather.
 
-### 1. Serverless Proxy Integration
-To prevent exposing sensitive API keys directly in client-side bundles, API calls route internally through a serverless middleman:
-- Upstream network fetches call `/api/weather` internally.
-- The **Vercel Serverless Function** (`api/weather.js`) securely injects the production API Key configured directly inside Vercel's private **Environment Variables** console.
+## Quality Commands
 
-### 2. Client-side Fallback & Customization
-- Users can utilize the **Api Keys** configuration panel within the app to enter custom OpenWeather credentials stored securely in browser `localStorage`.
-- When custom keys are detected, the app automatically switches to direct client-side requests to maximize speed and localized usage quotas.
+```bash
+npm run lint
+npm run typecheck
+npm run build
+```

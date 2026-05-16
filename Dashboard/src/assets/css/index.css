@@ -12,21 +12,22 @@ html {
 }
 
 :root {
-  --bg: #fffaf2;
-  --bg-secondary: #f4ecdf;
-  --surface: #fffdf8;
-  --surface-muted: #f7efe4;
-  --surface-strong: #f0e1cb;
-  --text: #30251c;
-  --text-heading: #1b130c;
-  --text-muted: #7c6e5f;
-  --border: #e2d3c0;
-  --accent: #2658d8;
-  --accent-strong: #17388d;
-  --accent-soft: #e8efff;
-  --danger: #c24d3f;
-  --danger-soft: #fff0ec;
-  --shadow-soft: 0 18px 45px rgba(32, 20, 6, 0.08);
+  --bg: #f6f7f2;
+  --bg-secondary: #ecefe6;
+  --surface: #fffef8;
+  --surface-muted: #eff3ea;
+  --surface-secondary: #e9eee3;
+  --surface-strong: #dfe7d8;
+  --text: #273029;
+  --text-heading: #111712;
+  --text-muted: #667065;
+  --border: #d8dfd2;
+  --accent: #126b61;
+  --accent-strong: #0b4943;
+  --accent-soft: #dff3ee;
+  --danger: #b83b35;
+  --danger-soft: #fae8e5;
+  --shadow-soft: 0 18px 45px rgba(18, 35, 28, 0.1);
   --font-sans:
     system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-heading: var(--font-sans);
@@ -70,8 +71,18 @@ body {
   font-family: var(--font-sans);
 }
 
+body::selection {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
 #root {
   min-height: 100svh;
+}
+
+:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--accent) 65%, transparent);
+  outline-offset: 3px;
 }
 
 img,
